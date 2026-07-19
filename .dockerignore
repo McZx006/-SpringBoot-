@@ -1,0 +1,10 @@
+.git
+.idea
+.vscode
+logs
+runtime
+**/node_modules
+**/dist
+**/target
+**/.cache
+**/*.log

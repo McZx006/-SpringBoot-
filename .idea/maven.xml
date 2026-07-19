@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="$PROJECT_DIR$/../.m2repo" />
+        <option name="mavenHome" value="D:\IDEA\IntelliJ IDEA 2024.3.5\plugins\maven\lib\maven3" />
+        <option name="userSettingsFile" value="" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="21" />
+    <option name="vmOptions" value="-Dfile.encoding=UTF-8" />
+  </component>
+</project>

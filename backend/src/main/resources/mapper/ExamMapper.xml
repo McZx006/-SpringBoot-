@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.platform.mapper.ExamMapper">
+    <select id="paperPage" resultType="map">
+        SELECT id, name, description, duration, total_score AS totalScore, status, addtime
+        FROM exampaper
+        <where>
+            <if test="publicOnly">
+                status = 1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY addtime DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="paperCount" resultType="long">
+        SELECT COUNT(*)
+        FROM exampaper
+        <where>
+            <if test="publicOnly">
+                status = 1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="paperDetail" resultType="map">
+        SELECT id, name, description, duration, total_score AS totalScore, status, addtime
+        FROM exampaper
+        WHERE id = #{paperId}
+    </select>
+
+    <select id="questionsByPaper" resultType="map">
+        SELECT id, paper_id AS paperId, question_name AS questionName, question_type AS questionType,
+               options_json AS optionsJson, answer, analysis, score, sort, addtime
+        FROM examquestion
+        WHERE paper_id = #{paperId}
+        ORDER BY sort ASC, id ASC
+    </select>
+
+    <select id="questionPage" resultType="map">
+        SELECT q.id, q.paper_id AS paperId, p.name AS paperName, q.question_name AS questionName,
+               q.question_type AS questionType, q.options_json AS optionsJson, q.answer,
+               q.analysis, q.score, q.sort, q.addtime
+        FROM examquestion q
+        LEFT JOIN exampaper p ON p.id = q.paper_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND q.question_name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="paperId != null">
+                AND q.paper_id = #{paperId}
+            </if>
+        </where>
+        ORDER BY q.paper_id DESC, q.sort ASC, q.id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="questionCount" resultType="long">
+        SELECT COUNT(*)
+        FROM examquestion q
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND q.question_name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="paperId != null">
+                AND q.paper_id = #{paperId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertRecord">
+        INSERT INTO examrecord (paper_id, user_id, score, answer_json, correct_count, wrong_count, start_time, submit_time)
+        VALUES (#{paperId}, #{userId}, #{score}, #{answerJson}, #{correctCount}, #{wrongCount}, NOW(), NOW())
+    </insert>
+
+    <select id="lastInsertRecordId" resultType="long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <insert id="insertPaper" parameterType="com.example.platform.entity.ExamPaper" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exampaper (name, description, duration, total_score, status)
+        VALUES (#{name}, #{description}, #{duration}, #{totalScore}, #{status})
+    </insert>
+
+    <update id="updatePaper" parameterType="com.example.platform.entity.ExamPaper">
+        UPDATE exampaper
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deletePapers">
+        DELETE FROM exampaper
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertQuestion" parameterType="com.example.platform.entity.ExamQuestion" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO examquestion (paper_id, question_name, question_type, options_json, answer, analysis, score, sort)
+        VALUES (#{paperId}, #{questionName}, #{questionType}, #{optionsJson}, #{answer}, #{analysis}, #{score}, #{sort})
+    </insert>
+
+    <update id="updateQuestion" parameterType="com.example.platform.entity.ExamQuestion">
+        UPDATE examquestion
+        <set>
+            <if test="paperId != null">paper_id = #{paperId},</if>
+            <if test="questionName != null">question_name = #{questionName},</if>
+            <if test="questionType != null">question_type = #{questionType},</if>
+            <if test="optionsJson != null">options_json = #{optionsJson},</if>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="analysis != null">analysis = #{analysis},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="sort != null">sort = #{sort},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteQuestions">
+        DELETE FROM examquestion
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="recordPage" resultType="map">
+        SELECT r.id, r.paper_id AS paperId, p.name AS paperName, r.user_id AS userId,
+               u.username, r.score, r.correct_count AS correctCount, r.wrong_count AS wrongCount,
+               r.start_time AS startTime, r.submit_time AS submitTime, r.addtime
+        FROM examrecord r
+        LEFT JOIN exampaper p ON p.id = r.paper_id
+        LEFT JOIN t_users u ON u.id = r.user_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{keyword}, '%') OR u.username LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="userId != null">
+                AND r.user_id = #{userId}
+            </if>
+        </where>
+        ORDER BY r.submit_time DESC, r.id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="recordCount" resultType="long">
+        SELECT COUNT(*)
+        FROM examrecord r
+        LEFT JOIN exampaper p ON p.id = r.paper_id
+        LEFT JOIN t_users u ON u.id = r.user_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{keyword}, '%') OR u.username LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="userId != null">
+                AND r.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="recordDetail" resultType="map">
+        SELECT r.id, r.paper_id AS paperId, p.name AS paperName, r.user_id AS userId,
+               u.username, r.score, r.answer_json AS answerJson,
+               r.correct_count AS correctCount, r.wrong_count AS wrongCount,
+               r.start_time AS startTime, r.submit_time AS submitTime, r.addtime
+        FROM examrecord r
+        LEFT JOIN exampaper p ON p.id = r.paper_id
+        LEFT JOIN t_users u ON u.id = r.user_id
+        WHERE r.id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,53 @@
+package com.example.platform.common;
+
+import java.util.List;
+
+public class PageResult<T> {
+    private List<T> list;
+    private long total;
+    private int page;
+    private int limit;
+
+    public PageResult() {
+    }
+
+    public PageResult(List<T> list, long total, int page, int limit) {
+        this.list = list;
+        this.total = total;
+        this.page = page;
+        this.limit = limit;
+    }
+
+    public List<T> getList() {
+        return list;
+    }
+
+    public void setList(List<T> list) {
+        this.list = list;
+    }
+
+    public long getTotal() {
+        return total;
+    }
+
+    public void setTotal(long total) {
+        this.total = total;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+}
+

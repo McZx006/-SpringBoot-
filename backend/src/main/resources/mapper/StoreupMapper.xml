@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.platform.mapper.StoreupMapper">
+    <select id="page" resultType="map">
+        SELECT id, user_id AS userId, ref_id AS refId, type, title, addtime
+        FROM storeup
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY addtime DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM storeup
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert">
+        INSERT INTO storeup (user_id, ref_id, type, title)
+        VALUES (#{userId}, #{refId}, #{type}, #{title})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM storeup
+        WHERE user_id = #{userId}
+          AND ref_id = #{refId}
+          AND type = #{type}
+    </delete>
+
+    <delete id="deleteBatch">
+        DELETE FROM storeup
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.platform.mapper.ResourceTypeMapper">
+    <select id="list" resultType="map">
+        SELECT id, name, sort, addtime
+        FROM t_ziliaoleixing
+        ORDER BY sort ASC, id ASC
+    </select>
+
+    <select id="findByName" resultType="map">
+        SELECT id, name, sort, addtime
+        FROM t_ziliaoleixing
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
+    <select id="page" resultType="map">
+        SELECT id, name, sort, addtime
+        FROM t_ziliaoleixing
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY sort ASC, id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM t_ziliaoleixing
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert">
+        INSERT INTO t_ziliaoleixing (name, sort)
+        VALUES (#{name}, #{sort})
+    </insert>
+
+    <update id="update">
+        UPDATE t_ziliaoleixing
+        SET name = #{name},
+            sort = #{sort}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBatch">
+        DELETE FROM t_ziliaoleixing
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

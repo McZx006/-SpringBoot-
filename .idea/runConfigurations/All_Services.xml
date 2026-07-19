@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="All Services" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
+    <toRun name="Backend Maven Spring Boot" type="MavenRunConfiguration" />
+    <toRun name="Student Web Vite" type="js.build_tools.npm" />
+    <toRun name="Admin Web Vue CLI" type="js.build_tools.npm" />
+    <method v="2" />
+  </configuration>
+</component>

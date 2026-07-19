@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.platform.mapper.ContentMapper">
+    <select id="newsPage" resultType="map">
+        SELECT id, title, picture, summary, content, status, addtime
+        FROM news
+        <where>
+            <if test="publicOnly">
+                status = 1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY addtime DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="newsCount" resultType="long">
+        SELECT COUNT(*)
+        FROM news
+        <where>
+            <if test="publicOnly">
+                status = 1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="newsDetail" resultType="map">
+        SELECT id, title, picture, summary, content, status, addtime
+        FROM news
+        WHERE id = #{id}
+    </select>
+
+    <select id="banners" resultType="map">
+        SELECT id, name, value, remark, addtime
+        FROM config
+        ORDER BY id ASC
+    </select>
+
+    <select id="messagesPage" resultType="map">
+        SELECT m.id, m.user_id AS userId, u.username, m.content, m.reply,
+               m.reply_time AS replyTime, m.status, m.addtime
+        FROM messages m
+        LEFT JOIN t_users u ON u.id = m.user_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (m.content LIKE CONCAT('%', #{keyword}, '%') OR u.username LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="userId != null">
+                AND m.user_id = #{userId}
+            </if>
+        </where>
+        ORDER BY m.addtime DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="messagesCount" resultType="long">
+        SELECT COUNT(*)
+        FROM messages m
+        LEFT JOIN t_users u ON u.id = m.user_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (m.content LIKE CONCAT('%', #{keyword}, '%') OR u.username LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="userId != null">
+                AND m.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="saveMessage">
+        INSERT INTO messages (user_id, content, status)
+        VALUES (#{userId}, #{content}, 0)
+    </insert>
+
+    <update id="replyMessage">
+        UPDATE messages
+        SET reply = #{reply}, reply_time = NOW(), status = 1
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteMessages">
+        DELETE FROM messages
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="saveNews">
+        INSERT INTO news (title, picture, summary, content, status)
+        VALUES (#{title}, #{picture}, #{summary}, #{content}, #{status})
+    </insert>
+
+    <update id="updateNews">
+        UPDATE news
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="picture != null">picture = #{picture},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteNews">
+        DELETE FROM news
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="bannerPage" resultType="map">
+        SELECT id, name, value, remark, addtime
+        FROM config
+        <where>
+            <if test="keyword != null and keyword != ''">
+                name LIKE CONCAT('%', #{keyword}, '%') OR remark LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="bannerCount" resultType="long">
+        SELECT COUNT(*)
+        FROM config
+        <where>
+            <if test="keyword != null and keyword != ''">
+                name LIKE CONCAT('%', #{keyword}, '%') OR remark LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="saveBanner">
+        INSERT INTO config (name, value, remark)
+        VALUES (#{name}, #{value}, #{remark})
+    </insert>
+
+    <update id="updateBanner">
+        UPDATE config
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="value != null">value = #{value},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBanners">
+        DELETE FROM config
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="forumPage" resultType="map">
+        SELECT f.id, f.user_id AS userId, u.username, f.title, f.content,
+               f.status, f.view_count AS viewCount, f.addtime
+        FROM forum f
+        LEFT JOIN t_users u ON u.id = f.user_id
+        <where>
+            <if test="publicOnly">
+                AND f.status = 1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (f.title LIKE CONCAT('%', #{keyword}, '%') OR f.content LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY f.addtime DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="forumCount" resultType="long">
+        SELECT COUNT(*)
+        FROM forum f
+        <where>
+            <if test="publicOnly">
+                AND f.status = 1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (f.title LIKE CONCAT('%', #{keyword}, '%') OR f.content LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="forumDetail" resultType="map">
+        SELECT f.id, f.user_id AS userId, u.username, f.title, f.content,
+               f.status, f.view_count AS viewCount, f.addtime
+        FROM forum f
+        LEFT JOIN t_users u ON u.id = f.user_id
+        WHERE f.id = #{id}
+    </select>
+
+    <update id="increaseForumViewCount">
+        UPDATE forum
+        SET view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <insert id="saveForum">
+        INSERT INTO forum (user_id, title, content, status)
+        VALUES (#{userId}, #{title}, #{content}, 1)
+    </insert>
+
+    <update id="updateForum">
+        UPDATE forum
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteForums">
+        DELETE FROM forum
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="forumComments" resultType="map">
+        SELECT c.id, c.forum_id AS forumId, c.user_id AS userId, u.username,
+               c.content, c.addtime
+        FROM forum_comment c
+        LEFT JOIN t_users u ON u.id = c.user_id
+        WHERE c.forum_id = #{forumId}
+        ORDER BY c.addtime ASC
+    </select>
+
+    <insert id="saveForumComment">
+        INSERT INTO forum_comment (forum_id, user_id, content)
+        VALUES (#{forumId}, #{userId}, #{content})
+    </insert>
+
+    <delete id="deleteForumCommentsByForumIds">
+        DELETE FROM forum_comment
+        WHERE forum_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteForumCommentsByForumId">
+        DELETE FROM forum_comment
+        WHERE forum_id = #{forumId}
+    </delete>
+</mapper>

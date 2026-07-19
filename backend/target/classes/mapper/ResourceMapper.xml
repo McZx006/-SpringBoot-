@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.platform.mapper.ResourceMapper">
+    <sql id="whereSql">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND r.title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="typeId != null">
+                AND r.type_id = #{typeId}
+            </if>
+            <if test="publicOnly">
+                AND r.status = 1
+            </if>
+        </where>
+    </sql>
+
+    <select id="page" resultType="map">
+        SELECT r.id, r.type_id AS typeId, t.name AS typeName, r.title, r.summary,
+               r.cover, r.file_url AS fileUrl, r.video_url AS videoUrl, r.author,
+               r.view_count AS viewCount, r.download_count AS downloadCount,
+               r.status, r.addtime
+        FROM t_xuexiziliao r
+        LEFT JOIN t_ziliaoleixing t ON t.id = r.type_id
+        <include refid="whereSql"/>
+        ORDER BY r.addtime DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM t_xuexiziliao r
+        LEFT JOIN t_ziliaoleixing t ON t.id = r.type_id
+        <include refid="whereSql"/>
+    </select>
+
+    <select id="findById" resultType="map">
+        SELECT r.id, r.type_id AS typeId, t.name AS typeName, r.title, r.summary,
+               r.cover, r.file_url AS fileUrl, r.video_url AS videoUrl, r.author,
+               r.view_count AS viewCount, r.download_count AS downloadCount,
+               r.status, r.addtime
+        FROM t_xuexiziliao r
+        LEFT JOIN t_ziliaoleixing t ON t.id = r.type_id
+        WHERE r.id = #{id}
+    </select>
+
+    <update id="increaseViewCount">
+        UPDATE t_xuexiziliao
+        SET view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="increaseDownloadCount">
+        UPDATE t_xuexiziliao
+        SET download_count = download_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <select id="commentList" resultType="map">
+        SELECT d.id, d.resource_id AS resourceId, d.user_id AS userId, d.content, d.addtime,
+               COALESCE(x.name, u.username) AS username
+        FROM discussxuexiziliao d
+        LEFT JOIN t_users u ON u.id = d.user_id
+        LEFT JOIN t_xueyuan x ON x.user_id = d.user_id
+        WHERE d.resource_id = #{resourceId}
+        ORDER BY d.addtime DESC, d.id DESC
+    </select>
+
+    <insert id="insertComment">
+        INSERT INTO discussxuexiziliao (resource_id, user_id, content)
+        VALUES (#{resourceId}, #{userId}, #{content})
+    </insert>
+
+    <insert id="insert" parameterType="com.example.platform.entity.LearningResource" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_xuexiziliao (type_id, title, summary, cover, file_url, video_url, author, status)
+        VALUES (#{typeId}, #{title}, #{summary}, #{cover}, #{fileUrl}, #{videoUrl}, #{author}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.example.platform.entity.LearningResource">
+        UPDATE t_xuexiziliao
+        <set>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="cover != null">cover = #{cover},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="videoUrl != null">video_url = #{videoUrl},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBatch">
+        DELETE FROM t_xuexiziliao
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
