@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 线上教学平台
 
 本项目按《线上教学平台版本UI接口确定方案.md》和《线上教学平台后续实施与系统设计方案.md》创建工程骨架。
@@ -29,3 +30,7 @@ online-teaching-platform/
 5. 先完成登录、资料、考试三个核心模块，再补论坛、留言、公告。
 
 详细运行步骤见 [docs/run.md](docs/run.md)。
+=======
+# -SpringBoot-
+基于 Spring Boot 2.7 + MyBatis + MySQL 8.0+ 构建后端服务，搭配 Vue 2.7 + Element UI 管理后台和 Vue 3.4 + Element Plus + Vite 学生端的在线教学平台，支持学习资料管理、在线考试、论坛交流、公告轮播、文件预览下载等核心功能。
+>>>>>>> a5eb75b389bff4f06747abc2de4e406cfd73171f
