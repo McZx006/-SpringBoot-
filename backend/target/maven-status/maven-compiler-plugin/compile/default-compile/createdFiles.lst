@@ -10,6 +10,7 @@ com\example\platform\mapper\ResourceMapper.class
 com\example\platform\controller\FileController.class
 com\example\platform\OnlineTeachingApplication.class
 com\example\platform\controller\StoreupController.class
+com\example\platform\controller\StatsController.class
 com\example\platform\entity\LearningResource.class
 com\example\platform\service\impl\StoreupServiceImpl.class
 com\example\platform\mapper\XueyuanMapper.class

@@ -97,30 +97,10 @@ async function storeup() {
   ElMessage.success('收藏成功')
 }
 
-function toPreviewUrl(fileUrl) {
-  if (!fileUrl || !fileUrl.startsWith('/upload/')) {
-    return fileUrl || ''
-  }
-  const relative = fileUrl.substring('/upload/'.length)
-  const slashIndex = relative.indexOf('/')
-  if (slashIndex < 0 || slashIndex === relative.length - 1) {
-    return fileUrl
-  }
-  const type = relative.substring(0, slashIndex)
-  const name = relative.substring(slashIndex + 1)
-  return `/api/file/preview/${type}/${name}`
-}
-
 async function loadDetail() {
   const res = await request.get(`/resources/detail/${route.params.id}`)
   resource.value = res.data.data
-  if (resource.value.videoUrl) {
-    previewUrl.value = resource.value.videoUrl
-  } else if (resource.value.fileUrl) {
-    previewUrl.value = toPreviewUrl(resource.value.fileUrl)
-  } else {
-    previewUrl.value = ''
-  }
+  previewUrl.value = resource.value.videoUrl || resource.value.fileUrl || ''
 }
 
 async function loadComments() {

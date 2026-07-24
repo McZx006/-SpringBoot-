@@ -11,4 +11,6 @@ public interface UserMapper {
     int insert(User user);
 
     int updatePassword(@Param("id") Long id, @Param("password") String password);
+
+    long countAll();
 }

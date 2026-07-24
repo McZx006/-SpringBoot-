@@ -70,7 +70,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 || uri.matches("/api/forum/\\d+")
                 || uri.startsWith("/api/forum/comments/")
                 || uri.equals("/api/file/download")
-                || uri.startsWith("/api/file/preview/");
+                || uri.equals("/api/stats/dashboard");
     }
 
     private boolean isAdminApi(String uri, String method) {
